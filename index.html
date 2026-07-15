@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>NEON BREACH // COMMAND DECK</title>
+  <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+<div id="app" class="menu-mode">
+  <header class="hud" aria-label="게임 정보">
+    <div class="stat"><span class="label">점수</span><strong id="score">0</strong></div>
+    <div class="stat health"><span class="label">코어 내구도</span><strong id="health">100</strong></div>
+    <div class="stat combo"><span class="label">콤보</span><strong id="combo">0</strong></div>
+    <div class="stat"><span class="label">웨이브</span><strong id="level">1</strong></div>
+    <div class="stat reaction"><span class="label">평균 반응</span><strong id="reaction">--</strong></div>
+    <div class="stat"><span class="label">최고 점수</span><strong id="best">0</strong></div>
+    <div class="stat"><span class="label">최고 콤보</span><strong id="bestComboRecord">0</strong></div>
+    <div class="stat reaction"><span class="label">최고 평균 반응</span><strong id="bestReactionRecord">--</strong></div>
+    <div class="stat"><span class="label">크레딧</span><strong id="coins">0</strong></div>
+  </header>
+
+  <main class="game-shell">
+    <canvas id="game" aria-label="반응속도 기반 디펜스 게임"></canvas>
+
+    <div id="weaponBadge" class="weapon-badge">
+      <span id="weaponName" class="weapon-name">입력 대응 모드</span>
+      <span id="weaponHelp" class="weapon-help">적의 색과 기호를 확인하세요</span>
+    </div>
+
+    <div class="top-actions">
+      <button id="settingsBtn" class="icon-btn" title="설정" aria-label="설정">⚙</button>
+      <button id="soundBtn" class="icon-btn" title="소리 켜기/끄기" aria-label="소리 켜기/끄기">🔊</button>
+      <button id="pauseBtn" class="icon-btn" title="일시정지" aria-label="일시정지">Ⅱ</button>
+    </div>
+
+    <div id="toast" class="toast">레벨 업!</div>
+    <div id="waveBanner" class="wave-banner">WAVE 1</div>
+
+    <section id="startOverlay" class="overlay">
+      <div class="command-deck">
+        <div class="command-topline">
+          <span>NB-04 // REACTOR DEFENSE NETWORK</span>
+          <span class="command-online"><i></i> SYSTEM ONLINE</span>
+        </div>
+
+        <section class="command-hero">
+          <div class="command-kicker">TACTICAL RHYTHM DEFENSE</div>
+          <h1 class="command-title">
+            <span>NEON</span>
+            <span>BREACH</span>
+          </h1>
+          <p class="command-subtitle">
+            다양한 입력 방식과 리듬에 맞춰 침입체를 제거하고,
+            코어를 방어하며 웨이브를 돌파하십시오.
+          </p>
+
+          <div class="command-loadout-strip">
+            <div>
+              <span>CORE MODULE</span>
+              <strong id="startModuleName">표준 코어 모듈</strong>
+            </div>
+            <div>
+              <span>CORE SKIN</span>
+              <strong id="startSkinName">아쿠아 코어</strong>
+            </div>
+            <div>
+              <span>CREDITS</span>
+              <strong>◆ <b id="startCredits">0</b></strong>
+            </div>
+          </div>
+
+          <div class="rules command-rules">
+            <div class="rule"><b>01 / 숫자 레인</b><br>1·2·3·4 · 타격선 및 왼쪽 우선 설정</div>
+            <div class="rule"><b>02 / 하단 숫자</b><br>숫자 5 · 위치와 순서 제한 없음</div>
+            <div class="rule"><b>03 / 마우스</b><br>빨강 좌클릭 · 보라 우클릭</div>
+            <div class="rule"><b>04 / 휠</b><br>노랑 위 · 주황 아래</div>
+            <div class="rule"><b>05 / 흰색 미끼</b><br>클릭·휠·5 지시를 무시하고 통과</div>
+            <div class="rule"><b>06 / 시스템</b><br>Space EMP · P/Esc 일시정지</div>
+          </div>
+        </section>
+
+        <nav class="command-menu" aria-label="메인 메뉴">
+          <div class="command-menu-title">
+            <span>COMMAND MENU</span>
+            <small>SELECT OPERATION</small>
+          </div>
+
+          <button id="startBtn" class="command-action command-primary">
+            <span class="command-index">01</span>
+            <span class="command-copy"><b>프로토콜 시작</b><small>현재 설정으로 출격</small></span>
+            <span class="command-arrow">›</span>
+          </button>
+
+          <button id="startShopBtn" class="command-action">
+            <span class="command-index">02</span>
+            <span class="command-copy"><b>캡슐 상점</b><small>모듈과 외형 획득</small></span>
+            <span class="command-arrow">›</span>
+          </button>
+
+          <button id="startCoreBtn" class="command-action">
+            <span class="command-index">03</span>
+            <span class="command-copy"><b>코어 조립</b><small>능력 모듈·코어 스킨 장착</small></span>
+            <span class="command-arrow">›</span>
+          </button>
+
+          <button id="startLoadoutBtn" class="command-action">
+            <span class="command-index">04</span>
+            <span class="command-copy"><b>전투 효과</b><small>타격·EMP·배경·적 스킨</small></span>
+            <span class="command-arrow">›</span>
+          </button>
+
+          <button id="startSettingsBtn" class="command-action">
+            <span class="command-index">05</span>
+            <span class="command-copy"><b>시스템 설정</b><small>난이도와 게임 규칙</small></span>
+            <span class="command-arrow">›</span>
+          </button>
+
+          <div class="command-footer">
+            <span>LOCAL SAVE ACTIVE</span>
+            <span>BUILD INDEX-01</span>
+          </div>
+        </nav>
+      </div>
+    </section>
+
+    <section id="pauseOverlay" class="overlay hidden">
+      <div class="card">
+        <div class="eyebrow">PAUSED</div>
+        <h1 style="font-size:clamp(38px,6vw,58px)">일시정지</h1>
+        <p class="subtitle">준비되면 계속하세요.</p>
+        <div class="button-row">
+          <button id="resumeBtn" class="primary-btn">계속하기</button>
+          <button id="pauseRestartBtn" class="secondary-btn">처음부터</button>
+          <button id="exitGameBtn" class="secondary-btn">게임 포기하고 나가기</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="gameOverOverlay" class="overlay hidden">
+      <div class="card">
+        <div class="eyebrow">BREACH CONFIRMED</div>
+        <h1 style="font-size:clamp(38px,6vw,58px)">코어 붕괴</h1>
+        <div class="result-grid">
+          <div class="result"><span>최종 점수</span><strong id="finalScore">0</strong></div>
+          <div class="result"><span>최고 콤보</span><strong id="finalCombo">0</strong></div>
+          <div class="result"><span>평균 반응</span><strong id="finalReaction">--</strong></div>
+          <div class="result"><span>처치 수</span><strong id="finalKills">0</strong></div>
+          <div class="result"><span>도달 웨이브</span><strong id="finalLevel">1</strong></div>
+          <div class="result"><span>전체 최고 점수</span><strong id="finalBest">0</strong></div>
+          <div class="result"><span>전체 최고 콤보</span><strong id="finalRecordCombo">0</strong></div>
+          <div class="result"><span>최고 평균 반응</span><strong id="finalRecordReaction">--</strong></div>
+          <div class="result reward-result"><span>획득 크레딧</span><strong id="finalReward">0</strong></div>
+          <div class="result"><span>보유 크레딧</span><strong id="finalCoins">0</strong></div>
+        </div>
+        <div class="button-row">
+          <button id="restartBtn" class="primary-btn">다시 도전</button>
+          <button id="homeBtn" class="secondary-btn">첫 화면</button>
+          <button id="gameOverShopBtn" class="secondary-btn">캡슐 상점</button>
+          <button id="gameOverLoadoutBtn" class="secondary-btn">효과 선택</button>
+          <button id="gameOverCoreBtn" class="secondary-btn">코어 선택</button>
+          <button id="gameOverSettingsBtn" class="secondary-btn">설정</button>
+        </div>
+      </div>
+    </section>
+    <section id="shopOverlay" class="overlay hidden">
+      <div class="card shop-card">
+        <div class="shop-head">
+          <div>
+            <div class="eyebrow">CAPSULE MARKET</div>
+            <h1 style="font-size:clamp(34px,5vw,52px); margin-bottom:8px;">캡슐 상점</h1>
+            <p class="subtitle" style="margin:0; text-align:left;">
+              능력 코어 모듈과 코어 스킨을 분리해 뽑고, 전투 효과와 외형을 획득합니다.
+            </p>
+          </div>
+          <div class="wallet">◆ <span id="shopCoins">0</span> 크레딧</div>
+        </div>
+
+        <div class="rarity-rates">
+          일반 42% · 고급 25% · 희귀 16% · 영웅 9% · 전설 5% · 신화 2% ·
+          고대 0.7% · 초월 0.25% · <span class="rarity-cosmic">성운 0.05%</span><br>
+          중복 환급: 일반 25 · 고급 40 · 희귀 70 · 영웅 120 · 전설 220 ·
+          신화 450 · 고대 900 · 초월 2,500 · 성운 8,000 크레딧
+        </div>
+
+        <div class="draw-grid">
+          <button class="draw-btn" data-draw-category="hitSound">
+            <b>타격 사운드·이펙트 캡슐</b><span>150 크레딧</span>
+          </button>
+          <button class="draw-btn" data-draw-category="empEffect">
+            <b>EMP 이펙트 캡슐</b><span>150 크레딧</span>
+          </button>
+          <button class="draw-btn draw-btn-module" data-draw-category="coreModule">
+            <b>능력 코어 모듈</b><span>500 크레딧 · 전투 성능</span>
+          </button>
+          <button class="draw-btn draw-btn-skin" data-draw-category="coreSkin">
+            <b>코어 스킨 캡슐</b><span>200 크레딧 · 외형 전용</span>
+          </button>
+          <button class="draw-btn" data-draw-category="backgroundSkin">
+            <b>배경 스킨 캡슐</b><span>350 크레딧</span>
+          </button>
+          <button class="draw-btn" data-draw-category="enemySkin">
+            <b>적 스킨 캡슐</b><span>500 크레딧 · 고가</span>
+          </button>
+        </div>
+
+        <div id="drawResult" class="draw-result-box">캡슐을 선택하면 결과가 표시됩니다.</div>
+
+        <div class="button-row" style="margin-top:16px;">
+          <button id="shopLoadoutBtn" class="secondary-btn">보유 효과 선택</button>
+          <button id="closeShopBtn" class="primary-btn">돌아가기</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="loadoutOverlay" class="overlay hidden">
+      <div class="card shop-card">
+        <div class="shop-head">
+          <div>
+            <div class="eyebrow">EFFECT LOADOUT</div>
+            <h1 style="font-size:clamp(34px,5vw,52px); margin-bottom:8px;">효과 선택</h1>
+            <p class="subtitle" style="margin:0; text-align:left;">
+              획득한 타격 사운드·이펙트, EMP, 배경·적 스킨을 장착합니다.
+              코어는 메인 화면의 코어 선택 메뉴에서 관리합니다.
+            </p>
+          </div>
+          <div class="wallet">◆ <span id="loadoutCoins">0</span> 크레딧</div>
+        </div>
+
+        <div id="inventoryGrid" class="inventory-grid" style="max-height:430px;"></div>
+
+        <div class="button-row" style="margin-top:16px;">
+          <button id="loadoutShopBtn" class="secondary-btn">캡슐 상점</button>
+          <button id="closeLoadoutBtn" class="primary-btn">돌아가기</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="coreOverlay" class="overlay hidden">
+      <div class="card shop-card core-assembly-card">
+        <div class="shop-head">
+          <div>
+            <div class="eyebrow">CORE ASSEMBLY BAY</div>
+            <h1 style="font-size:clamp(34px,5vw,52px); margin-bottom:8px;">코어 조립</h1>
+            <p class="subtitle" style="margin:0; text-align:left;">
+              전투 성능을 결정하는 능력 모듈과 외형만 바꾸는 코어 스킨을 각각 장착합니다.
+            </p>
+          </div>
+          <div class="wallet">◆ <span id="coreCoins">0</span> 크레딧</div>
+        </div>
+
+        <div class="core-summary-strip">
+          <div><span>ACTIVE MODULE</span><strong id="coreModuleEquipped">표준 코어 모듈</strong></div>
+          <div><span>ACTIVE SKIN</span><strong id="coreSkinEquipped">아쿠아 코어</strong></div>
+        </div>
+
+        <div class="core-assembly-grid">
+          <section class="core-bay">
+            <header>
+              <div><span class="bay-code">A / PERFORMANCE</span><h2>능력 코어 모듈</h2></div>
+              <button id="coreModuleShopBtn" class="bay-shop-btn">모듈 뽑기</button>
+            </header>
+            <p>내구도, 점수, 회복, EMP 효율과 특수 능력을 결정합니다.</p>
+            <div id="coreModuleGrid" class="inventory-grid core-inventory-grid"></div>
+          </section>
+
+          <section class="core-bay">
+            <header>
+              <div><span class="bay-code">B / COSMETIC</span><h2>코어 스킨</h2></div>
+              <button id="coreSkinShopBtn" class="bay-shop-btn">스킨 뽑기</button>
+            </header>
+            <p>성능 변화 없이 코어의 색상과 외형만 변경합니다.</p>
+            <div id="coreSkinGrid" class="inventory-grid core-inventory-grid"></div>
+          </section>
+        </div>
+
+        <div class="button-row" style="margin-top:16px;">
+          <button id="coreShopBtn" class="secondary-btn">전체 캡슐 상점</button>
+          <button id="closeCoreBtn" class="primary-btn">돌아가기</button>
+        </div>
+      </div>
+    </section>
+    <section id="settingsOverlay" class="overlay hidden">
+      <div class="card settings-card">
+        <div class="eyebrow">SYSTEM CONFIGURATION</div>
+        <h1 style="font-size:clamp(34px,5vw,52px); margin-bottom:8px;">설정</h1>
+        <p class="subtitle" style="margin:0; text-align:left;">
+          테스트용 크레딧, 최고 기록, 보유 아이템을 관리합니다. 모든 변경에는 확인 절차가 적용됩니다.
+        </p>
+
+        <div class="settings-list">
+          <div class="setting-action">
+            <div>
+              <b>게임 난이도</b>
+              <span>
+                적 이동속도, BPM과 동시 등장 확률을 조절합니다.
+                ×0.20부터 세밀하게 조절할 수 있습니다. 낮은 배율에서는
+                적 속도, BPM과 동시 등장 수가 크게 줄어듭니다.
+              </span>
+            </div>
+            <div class="multiplier-control">
+              <strong id="difficultyMultiplierValue">×0.75 · 쉬움</strong>
+              <input
+                id="difficultyMultiplierSlider"
+                type="range"
+                min="0.2"
+                max="2"
+                step="0.05"
+                value="0.75"
+                aria-label="게임 난이도 배율"
+              >
+            </div>
+          </div>
+
+          <div class="setting-action">
+            <div>
+              <b>숫자 타격선</b>
+              <span>
+                켜면 숫자 적은 두 타격선 위에서만 처치할 수 있지만
+                숫자 적 처치 점수가 1.8배가 됩니다.
+              </span>
+            </div>
+            <label class="toggle-control">
+              <input id="strikeLineToggle" type="checkbox" checked>
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+              <strong id="strikeLineStatus">켜짐 · 점수 ×1.8</strong>
+            </label>
+          </div>
+
+          <div class="setting-action">
+            <div>
+              <b>숫자 적 왼쪽 우선 입력</b>
+              <span>
+                켜면 현재 공격 가능한 1~4 숫자 적 중 가장 왼쪽 적의
+                숫자를 먼저 눌러야 합니다. 숫자 5에는 적용되지 않습니다.
+              </span>
+            </div>
+            <label class="toggle-control">
+              <input id="leftOrderToggle" type="checkbox">
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+              <strong id="leftOrderStatus">꺼짐 · 자유 입력</strong>
+            </label>
+          </div>
+
+          <div class="setting-action">
+            <div>
+              <b>게임 크레딧 획득 배율</b>
+              <span>
+                게임 종료 보상과 흰색 미끼의 크레딧 보상에 적용됩니다.
+                상점 중복 환급과 테스트용 크레딧에는 적용되지 않습니다.
+              </span>
+            </div>
+            <div class="multiplier-control">
+              <strong id="creditMultiplierValue">×1.00</strong>
+              <input
+                id="creditMultiplierSlider"
+                type="range"
+                min="0"
+                max="10"
+                step="0.25"
+                value="1"
+                aria-label="게임 크레딧 획득 배율"
+              >
+            </div>
+          </div>
+
+          <div class="setting-action">
+            <div>
+              <b>100,000 크레딧 제공</b>
+              <span>현재 보유 크레딧에 테스트용 크레딧 100,000개를 추가합니다.</span>
+            </div>
+            <button id="grantCreditsBtn">+100,000</button>
+          </div>
+
+          <div class="setting-action danger">
+            <div>
+              <b>크레딧 초기화</b>
+              <span>보유 중인 크레딧을 0으로 변경합니다. 획득 아이템은 유지됩니다.</span>
+            </div>
+            <button id="resetCreditsBtn">0으로 초기화</button>
+          </div>
+
+          <div class="setting-action danger">
+            <div>
+              <b>최고 점수 초기화</b>
+              <span>브라우저에 저장된 최고 점수 기록을 삭제합니다.</span>
+            </div>
+            <button id="resetBestBtn">기록 초기화</button>
+          </div>
+
+          <div class="setting-action danger">
+            <div>
+              <b>아이템 초기화</b>
+              <span>획득한 효과와 스킨을 삭제하고 기본 타격음, EMP, 코어 스킨만 남깁니다.</span>
+            </div>
+            <button id="resetItemsBtn">아이템 초기화</button>
+          </div>
+        </div>
+
+        <div class="wallet" style="text-align:center; margin-bottom:14px;">
+          현재 크레딧 ◆ <span id="settingsCoins">0</span>
+        </div>
+
+        <div class="button-row">
+          <button id="closeSettingsBtn" class="primary-btn">돌아가기</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="confirmOverlay" class="overlay hidden" style="z-index:20;">
+      <div class="card confirm-card">
+        <div class="confirm-symbol">!</div>
+        <div class="eyebrow">CONFIRM ACTION</div>
+        <h2 id="confirmTitle" style="margin:8px 0 8px; font-size:28px;">변경 확인</h2>
+        <p id="confirmMessage" class="subtitle" style="margin-bottom:18px;">
+          이 작업을 실행하시겠습니까?
+        </p>
+        <div class="button-row">
+          <button id="confirmCancelBtn" class="secondary-btn">취소</button>
+          <button id="confirmAcceptBtn" class="primary-btn">확인</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="controls">
+    <div class="skill-wrap" aria-label="EMP 충전량">
+      <div id="skillFill" class="skill-fill"></div>
+      <div class="skill-copy">
+        <b>EMP 충전</b>
+        <span id="skillText">0 / 100</span>
+      </div>
+    </div>
+    <button id="skillBtn" class="skill-btn">EMP 발동 [Space]</button>
+  </footer>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
